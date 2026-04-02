@@ -7,8 +7,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 # -----------------------------
-# LOAD DATA
-# -----------------------------
+# LOAD DATA ## @st.cache_data caches the function result so the file doesn’t reload every time you make a small change in Streamlit. This makes  app faster.
+# we make function load_data(), to load data cause it groups all data-loading steps together so we can reuse and manage them easily.
+# @st.cache_data is decorator - something that modifies or enhances a function without changing its actual code.
 @st.cache_data
 def load_data():
     df = pd.read_excel("data/Student_performance_data.xlsx")
@@ -27,15 +28,17 @@ features = [
     'Sports', 'Music', 'Volunteering'
 ]
 
-X = df[features]
+X = df[features]  ## we have excluded the GPA class, and GPA as result is calculated on basis of GPA and GPA class is also related to GPA ( in this data set 
+# high GPA class category = low GPA and vice version, ( a form of presentation). if we put GPA and GPA class as X, the model will overfit and makes no sense. 
 y = df['Result']
 
 # -----------------------------
 # SCALING + SPLIT
 # -----------------------------
-scaler = StandardScaler()
+scaler = StandardScaler() #Standardizes numeric features (mean=0, std=1). Helps  ML models perform better because all features maynot be in same label and # might effect the model that make it biased.
 X_scaled = scaler.fit_transform(X)
 
+## split the data into 80 percent train data and 20 percent test data , random state = 42 because it splits the data in same way every time we run the code.
 X_train, X_test, y_train, y_test = train_test_split(
     X_scaled, y, test_size=0.2, random_state=42
 )
@@ -43,7 +46,10 @@ X_train, X_test, y_train, y_test = train_test_split(
 # -----------------------------
 # TRAIN MODELS
 # -----------------------------
-# Logistic Regression
+# Logistic Regression  to predict student performance.
+#fit() trains the model on the training data.
+#predict() generates predictions on test data.
+#accuracy_score measures how many predictions were correct.
 lr_model = LogisticRegression()
 lr_model.fit(X_train, y_train)
 y_pred_lr = lr_model.predict(X_test)
@@ -57,13 +63,15 @@ rf_acc = accuracy_score(y_test, y_pred_rf)
 
 # -----------------------------
 # SELECT BEST MODEL
-# -----------------------------
+# Compares accuracy of both models. Picks the model with higher accuracy as the best model for predictions.-----------------------------
 best_model = rf_model if rf_acc > lr_acc else lr_model
 best_model_name = "Random Forest" if rf_acc > lr_acc else "Logistic Regression"
 
 # -----------------------------
 # SIDEBAR NAVIGATION
-# -----------------------------
+# Dashboard -shows summary stats and charts
+#Prediction - allows user to input new student data and predict pass/fail-----------------------------
+#Students - shows raw data and high-risk students
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Dashboard", "Students", "Prediction"])
 
