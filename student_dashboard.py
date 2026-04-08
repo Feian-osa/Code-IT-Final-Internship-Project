@@ -8,7 +8,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 # -----------------------------
-# LOAD DATA
+# LOAD DATA ## @st.cache_data caches the function result so the file doesn’t reload every time you make a small change in Streamlit. This makes  app faster.
+# we make function load_data(), to load data cause it groups all data-loading steps together so we can reuse and manage them easily.
+# @st.cache_data is decorator - something that modifies or enhances a function without changing its actual code.
 # -----------------------------
 @st.cache_data
 def load_data():
@@ -28,12 +30,13 @@ features = [
     'Sports', 'Music', 'Volunteering'
 ]
 
-X = df[features]
+X = df[features] ## we have excluded the GPA class, and GPA as result is calculated on basis of GPA and GPA class is also related to GPA ( in this data set 
+# high GPA class category = low GPA and vice version, ( a form of presentation). if we put GPA and GPA class as X, the model will overfit and makes no sense.
 y = df['Result']
 
 # -----------------------------
 # SPLIT DATA (NO SCALING HERE)
-# -----------------------------
+# --## split the data into 80 percent train data and 20 percent test data , random state = 42 because it splits the data in same way every time we run the code.---------------------------
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
@@ -79,7 +82,9 @@ st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Dashboard", "Students", "Prediction"])
 
 # -----------------------------
-# DASHBOARD PAGE
+# DASHBOARD PAGE Dashboard -shows summary stats and charts
+#Prediction - allows user to input new student data and predict pass/fail-----------------------------
+#Students - shows raw data and high-risk students
 # -----------------------------
 if page == "Dashboard":
     st.title("📊 Student Performance Dashboard")
@@ -155,3 +160,5 @@ elif page == "Prediction":
             st.success("✅ Student is likely to PASS")
         else:
             st.error("⚠️ Student is at RISK")
+
+
